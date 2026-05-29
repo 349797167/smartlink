@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartLink - URL Shortener</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-blue-900 to-slate-950 min-h-screen text-white">
+
+  <div class="max-w-7xl mx-auto p-6">
+
+    <div class="flex justify-between items-center mb-10">
+      <div>
+        <h1 class="text-5xl font-black">SmartLink</h1>
+        <p class="text-slate-300 mt-2">URL Shortener • QR Code Generator</p>
+      </div>
+
+      <button onclick="logout()" id="logoutBtn" class="hidden bg-red-500 hover:bg-red-600 px-5 py-3 rounded-2xl font-bold">
+        Logout
+      </button>
+    </div>
+
+    <div id="authPage" class="grid md:grid-cols-2 gap-10 items-center">
+
+      <div>
+        <h2 class="text-4xl font-bold mb-5">Create & Share Links Easily</h2>
+
+        <p class="text-slate-300 leading-relaxed mb-8">
+          Shorten URLs instantly, generate QR codes, and manage all your links in one beautiful dashboard.
+        </p>
+
+        <div class="grid grid-cols-2 gap-5">
+
+          <div class="bg-white/10 backdrop-blur-xl border border-white/10 rounded-3xl p-6">
+            <h3 class="text-2xl font-bold">5 Free Credits</h3>
+            <p class="text-slate-300 mt-2 text-sm">
+              Guests can use 5 free actions.
+            </p>
+          </div>
+
+          <div class="bg-white/10 backdrop-blur-xl border border-white/10 rounded-3xl p-6">
+            <h3 class="text-2xl font-bold">Unlimited Credits</h3>
+            <p class="text-slate-300 mt-2 text-sm">
+              Create an account for unlimited access.
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="bg-white/10 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-8 shadow-2xl">
+
+        <h2 class="text-3xl font-bold mb-6">Login / Create Account</h2>
+
+        <div class="space-y-5">
+
+          <input
+            type="text"
+            id="username"
+            placeholder="Enter Username"
+            class="w-full bg-slate-900/70 border border-slate-700 rounded-2xl px-5 py-4 outline-none"
+          >
+
+          <input
+            type="password"
+            id="password"
+            placeholder="Enter Password"
+            class="w-full bg-slate-900/70 border border-slate-700 rounded-2xl px-5 py-4 outline-none"
+          >
+
+          <button
+            onclick="login()"
+            class="w-full bg-blue-500 hover:bg-blue-600 py-4 rounded-2xl font-bold text-lg"
+          >
+            Login
+          </button>
+
+          <button
+            onclick="createAccount()"
+            class="w-full bg-emerald-500 hover:bg-emerald-600 py-4 rounded-2xl font-bold text-lg"
+          >
+            Create Account
+          </button>
+
+          <button
+            onclick="continueGuest()"
+            class="w-full bg-slate-700 hover:bg-slate-600 py-4 rounded-2xl font-bold text-lg"
+          >
+            Continue as Guest
+          </button>
+
+        </div>
+      </div>
+    </div>
+
+    <div id="dashboard" class="hidden">
+
+      <div class="grid lg:grid-cols-[1fr_350px] gap-8">
+
+        <div class="space-y-8">
+
+          <div class="bg-white/10 border border-white/10 rounded-[2rem] p-8 backdrop-blur-xl shadow-2xl">
+
+            <div class="flex justify-between items-center mb-8">
+              <div>
+                <h2 class="text-3xl font-bold">Dashboard</h2>
+                <p class="text-slate-300 mt-2" id="welcomeText"></p>
+              </div>
+
+              <div class="bg-slate-900/60 border border-slate-700 rounded-2xl px-6 py-4">
+                <p class="text-slate-400 text-sm">Credits</p>
+                <h3 class="text-3xl font-black" id="creditsDisplay">5</h3>
+              </div>
+            </div>
+
+            <div class="space-y-5">
+
+              <input
+                type="text"
+                id="urlInput"
+                placeholder="Paste URL here..."
+                class="w-full bg-slate-900/70 border border-slate-700 rounded-2xl px-5 py-4 outline-none"
+              >
+
+              <div class="flex flex-wrap gap-4">
+
+                <button
+                  onclick="shortenURL()"
+                  class="bg-blue-500 hover:bg-blue-600 px-6 py-4 rounded-2xl font-bold"
+                >
+                  Shorten URL
+                </button>
+
+                <button
+                  onclick="generateQR()"
+                  class="bg-purple-500 hover:bg-purple-600 px-6 py-4 rounded-2xl font-bold"
+                >
+                  Generate QR Code
+                </button>
+
+              </div>
+            </div>
+
+            <div id="resultBox" class="hidden mt-8 bg-slate-900/60 border border-slate-700 rounded-3xl p-6">
+
+              <div id="qrCode" class="mb-5"></div>
+
+              <p class="text-slate-400 mb-2">Shortened URL</p>
+
+              <div class="flex flex-wrap gap-4 justify-between items-center">
+                <a id="shortLink" target="_blank" class="text-cyan-300 text-lg break-all"></a>
+
+                <button
+                  onclick="copyURL()"
+                  class="bg-cyan-500 hover:bg-cyan-600 px-5 py-3 rounded-2xl font-bold"
+                >
+                  Copy
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white/10 border border-white/10 rounded-[2rem] p-8 backdrop-blur-xl shadow-2xl">
+
+            <h2 class="text-3xl font-bold mb-6">Recent Links</h2>
+
+            <div id="historyContainer" class="space-y-4">
+              <p class="text-slate-400">No links created yet.</p>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="space-y-8">
+
+          <div class="bg-white/10 border border-white/10 rounded-[2rem] p-8 backdrop-blur-xl shadow-2xl">
+
+            <h2 class="text-2xl font-bold mb-5">Features</h2>
+
+            <div class="space-y-4">
+
+              <div class="bg-slate-900/60 border border-slate-700 rounded-2xl p-5">
+                <h3 class="font-bold text-lg">URL Shortener</h3>
+                <p class="text-slate-400 text-sm mt-1">
+                  Create clean shortened URLs instantly.
+                </p>
+              </div>
+
+              <div class="bg-slate-900/60 border border-slate-700 rounded-2xl p-5">
+                <h3 class="font-bold text-lg">QR Code Generator</h3>
+                <p class="text-slate-400 text-sm mt-1">
+                  Generate QR codes for every link.
+                </p>
+              </div>
+
+              <div class="bg-slate-900/60 border border-slate-700 rounded-2xl p-5">
+                <h3 class="font-bold text-lg">Unlimited Accounts</h3>
+                <p class="text-slate-400 text-sm mt-1">
+                  Members receive unlimited credits.
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+
+    let credits = 5;
+    let loggedIn = false;
+    let latestShortURL = "";
+
+    function updateCredits() {
+      document.getElementById("creditsDisplay").innerText = loggedIn ? "∞" : credits;
+    }
+
+    function consumeCredit() {
+      if (loggedIn) return true;
+
+      if (credits <= 0) {
+        alert("You have no credits left. Create an account for unlimited access.");
+        return false;
+      }
+
+      credits--;
+      updateCredits();
+      return true;
+    }
+
+    function createAccount() {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      if (!username || !password) {
+        alert("Please enter a username and password.");
+        return;
+      }
+
+      const accountData = {
+        username: username,
+        password: password
+      };
+
+      localStorage.setItem("smartlinkAccount", JSON.stringify(accountData));
+
+      loggedIn = true;
+
+      openDashboard(username);
+
+      alert("Account created successfully!");
+    }
+
+    function login() {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      const savedAccount = localStorage.getItem("smartlinkAccount");
+
+      if (!savedAccount) {
+        alert("No account found.");
+        return;
+      }
+
+      const account = JSON.parse(savedAccount);
+
+      if (username === account.username && password === account.password) {
+        loggedIn = true;
+        openDashboard(account.username);
+      } else {
+        alert("Incorrect username or password.");
+      }
+    }
+
+    function continueGuest() {
+      loggedIn = false;
+      openDashboard("Guest User");
+    }
+
+    function openDashboard(name) {
+      document.getElementById("authPage").classList.add("hidden");
+      document.getElementById("dashboard").classList.remove("hidden");
+      document.getElementById("logoutBtn").classList.remove("hidden");
+
+      document.getElementById("welcomeText").innerText = `Welcome ${name}`;
+
+      updateCredits();
+    }
+
+    function logout() {
+      loggedIn = false;
+      credits = 5;
+
+      document.getElementById("dashboard").classList.add("hidden");
+      document.getElementById("authPage").classList.remove("hidden");
+      document.getElementById("logoutBtn").classList.add("hidden");
+
+      updateCredits();
+    }
+
+    window.onload = function () {
+      updateCredits();
+    }
+
+    function shortenURL() {
+
+      if (!consumeCredit()) return;
+
+      const url = document.getElementById("urlInput").value;
+
+      if (!url.startsWith("http")) {
+        alert("Please enter a valid URL starting with http or https.");
+        return;
+      }
+
+      const code = Math.random().toString(36).substring(2, 8);
+
+      latestShortURL = `https://smartlink.io/${code}`;
+
+      document.getElementById("resultBox").classList.remove("hidden");
+
+      const shortLink = document.getElementById("shortLink");
+      shortLink.href = latestShortURL;
+      shortLink.innerText = latestShortURL;
+
+      addHistory(url, latestShortURL);
+    }
+
+    function generateQR() {
+
+      if (!consumeCredit()) return;
+
+      if (!latestShortURL) {
+        alert("Please shorten a URL first.");
+        return;
+      }
+
+      const qrContainer = document.getElementById("qrCode");
+      qrContainer.innerHTML = "";
+
+      new QRCode(qrContainer, {
+        text: latestShortURL,
+        width: 200,
+        height: 200
+      });
+
+      alert("QR Code Generated!");
+    }
+
+    function copyURL() {
+      navigator.clipboard.writeText(latestShortURL);
+      alert("Copied to clipboard!");
+    }
+
+    function addHistory(original, shortURL) {
+
+      const historyContainer = document.getElementById("historyContainer");
+
+      if (historyContainer.innerHTML.includes("No links created yet")) {
+        historyContainer.innerHTML = "";
+      }
+
+      const div = document.createElement("div");
+
+      div.className = "bg-slate-900/60 border border-slate-700 rounded-2xl p-5";
+
+      div.innerHTML = `
+        <p class="text-slate-400 text-sm mb-2">Original URL</p>
+        <p class="break-all mb-4">${original}</p>
+
+        <p class="text-slate-400 text-sm mb-2">Shortened URL</p>
+        <a href="${shortURL}" target="_blank" class="text-cyan-300 break-all">${shortURL}</a>
+      `;
+
+      historyContainer.prepend(div);
+    }
+
+  </script>
+
+</body>
+</html>
